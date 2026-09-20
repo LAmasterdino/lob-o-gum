@@ -1,0 +1,1376 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>LOB-O-GUM</title>
+
+<style>
+
+/* =========================================================
+   GRUNDLAGEN
+========================================================= */
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+
+    background: #f4f0e7;
+
+    color: #3a2525;
+
+    font-family:
+        "Courier New",
+        monospace;
+
+    image-rendering: pixelated;
+
+    overflow-x: hidden;
+}
+
+
+/* =========================================================
+   SEITE
+========================================================= */
+
+.page {
+    width: min(100%, 900px);
+    margin: auto;
+
+    padding:
+        30px
+        20px
+        60px;
+
+    text-align: center;
+}
+
+
+/* =========================================================
+   PIXEL-TITEL
+========================================================= */
+
+.title {
+    margin: 0;
+
+    font-family:
+        "Courier New",
+        monospace;
+
+    font-size:
+        clamp(2.3rem, 7vw, 5.5rem);
+
+    line-height: .9;
+
+    font-weight: 1000;
+
+    color: #ed2027;
+
+    letter-spacing: -5px;
+
+    text-transform: uppercase;
+
+    text-shadow:
+        4px 0 #351919,
+        -4px 0 #351919,
+        0 4px #351919,
+        0 -4px #351919,
+        5px 5px 0 #351919;
+}
+
+
+/* =========================================================
+   UNTERTITEL
+========================================================= */
+
+.subtitle {
+    max-width: 700px;
+
+    margin:
+        22px
+        auto
+        30px;
+
+    font-size:
+        clamp(.85rem, 2.5vw, 1.25rem);
+
+    font-weight: 900;
+
+    line-height: 1.5;
+
+    color: #3a2828;
+}
+
+
+/* =========================================================
+   AUTOMAT
+========================================================= */
+
+.machine-area {
+
+    position: relative;
+
+    width: min(100%, 560px);
+
+    margin:
+        0 auto;
+}
+
+
+/*
+   Das Referenzbild enthält den kompletten
+   Pixel-Automaten.
+*/
+
+.machine-image {
+
+    display: block;
+
+    width: 100%;
+
+    height: auto;
+
+    user-select: none;
+
+    pointer-events: none;
+
+    image-rendering: pixelated;
+
+}
+
+
+/* =========================================================
+   INTERAKTIVE ZONEN
+========================================================= */
+
+/*
+   Die Positionen beziehen sich auf das
+   1024 × 1536 Referenzbild.
+
+   Der rote Knopf befindet sich ungefähr
+   bei 50% Breite und 66% Höhe.
+*/
+
+.machine-button {
+
+    position: absolute;
+
+    left: 50%;
+
+    top: 66%;
+
+    width: 15%;
+
+    aspect-ratio: 1;
+
+    transform:
+        translate(-50%, -50%);
+
+    border: 0;
+
+    background: transparent;
+
+    cursor: pointer;
+
+    z-index: 10;
+
+}
+
+
+/*
+   Unsichtbarer Hover-Effekt.
+   Der eigentliche rote Knopf befindet
+   sich bereits im Pixel-Art-Bild.
+*/
+
+.machine-button::after {
+
+    content: "";
+
+    position: absolute;
+
+    inset: -15%;
+
+    border:
+        3px solid transparent;
+
+    border-radius: 50%;
+
+    transition:
+        border-color .15s,
+        transform .15s;
+}
+
+
+.machine-button:hover::after {
+
+    border-color:
+        rgba(255,255,255,.45);
+
+    transform:
+        scale(1.08);
+
+}
+
+
+.machine-button:active::after {
+
+    transform:
+        scale(.9);
+
+}
+
+
+/* =========================================================
+   DREH-ANIMATION
+========================================================= */
+
+.machine-image.turning {
+
+    animation:
+        machineShake .8s steps(6);
+
+}
+
+
+@keyframes machineShake {
+
+    0% {
+        transform: translateX(0);
+    }
+
+    15% {
+        transform: translateX(-3px);
+    }
+
+    30% {
+        transform: translateX(4px);
+    }
+
+    45% {
+        transform: translateX(-4px);
+    }
+
+    60% {
+        transform: translateX(3px);
+    }
+
+    75% {
+        transform: translateX(-2px);
+    }
+
+    100% {
+        transform: translateX(0);
+    }
+
+}
+
+
+/* =========================================================
+   KAPSEL
+========================================================= */
+
+.capsule {
+
+    position: absolute;
+
+    /*
+       Ausgabeschacht ungefähr
+       bei 50% Breite / 54% Höhe.
+    */
+
+    left: 50%;
+
+    top: 54%;
+
+    width: 42px;
+
+    height: 62px;
+
+    transform:
+        translate(-50%, -50%)
+        scale(.2);
+
+    opacity: 0;
+
+    z-index: 20;
+
+    pointer-events: none;
+
+}
+
+
+.capsule.show {
+
+    animation:
+        capsuleDrop
+        1.25s
+        steps(8)
+        forwards;
+
+}
+
+
+/* obere Hälfte */
+
+.capsule-top {
+
+    position: absolute;
+
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 50%;
+
+    background:
+        linear-gradient(
+            135deg,
+            #ff6d9d 0%,
+            #ed236c 55%,
+            #a50f43 100%
+        );
+
+    border:
+        4px solid #351519;
+
+    border-bottom: 2px solid #351519;
+
+    border-radius:
+        25px
+        25px
+        4px
+        4px;
+
+}
+
+
+/* untere Hälfte */
+
+.capsule-bottom {
+
+    position: absolute;
+
+    bottom: 0;
+    left: 0;
+
+    width: 100%;
+    height: 50%;
+
+    background:
+        linear-gradient(
+            135deg,
+            #6bd7ff,
+            #2187ce
+        );
+
+    border:
+        4px solid #172e42;
+
+    border-top: 2px solid #172e42;
+
+    border-radius:
+        4px
+        4px
+        25px
+        25px;
+
+}
+
+
+/* weißer Ring */
+
+.capsule-band {
+
+    position: absolute;
+
+    top: 47%;
+
+    left: 2px;
+    right: 2px;
+
+    height: 9px;
+
+    background: white;
+
+    border:
+        3px solid #352629;
+
+    z-index: 5;
+
+}
+
+
+@keyframes capsuleDrop {
+
+    0% {
+
+        opacity: 0;
+
+        transform:
+            translate(-50%, -100px)
+            scale(.35)
+            rotate(-25deg);
+
+    }
+
+    20% {
+
+        opacity: 1;
+
+    }
+
+    45% {
+
+        transform:
+            translate(-50%, 5px)
+            scale(1)
+            rotate(15deg);
+
+    }
+
+    60% {
+
+        transform:
+            translate(-50%, 45px)
+            scale(1)
+            rotate(-12deg);
+
+    }
+
+    72% {
+
+        transform:
+            translate(-50%, 25px)
+            scale(1)
+            rotate(8deg);
+
+    }
+
+    86% {
+
+        transform:
+            translate(-50%, 65px)
+            scale(1)
+            rotate(-4deg);
+
+    }
+
+    100% {
+
+        opacity: 1;
+
+        transform:
+            translate(-50%, 85px)
+            scale(1)
+            rotate(0deg);
+
+    }
+
+}
+
+
+/* =========================================================
+   LOB-BOX
+========================================================= */
+
+.result-box {
+
+    position: relative;
+
+    width: min(100%, 850px);
+
+    min-height: 190px;
+
+    margin:
+        35px
+        auto
+        0;
+
+    padding:
+        30px
+        35px;
+
+    background: #f8f4e9;
+
+    border:
+        5px solid #3b2525;
+
+    /*
+       Pixel-Ecken
+    */
+
+    clip-path: polygon(
+
+        0 15px,
+        15px 15px,
+        15px 0,
+
+        calc(100% - 15px) 0,
+        calc(100% - 15px) 15px,
+        100% 15px,
+
+        100% calc(100% - 15px),
+        calc(100% - 15px) calc(100% - 15px),
+        calc(100% - 15px) 100%,
+
+        15px 100%,
+        15px calc(100% - 15px),
+        0 calc(100% - 15px)
+    );
+
+}
+
+
+/* =========================================================
+   BOX-TITEL
+========================================================= */
+
+.result-label {
+
+    font-size:
+        clamp(.8rem, 2vw, 1.2rem);
+
+    font-weight: 900;
+
+    color: #3a2929;
+
+}
+
+
+/* =========================================================
+   LOB
+========================================================= */
+
+.praise {
+
+    min-height: 70px;
+
+    margin:
+        10px
+        0;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    color: #ce3034;
+
+    font-size:
+        clamp(1.5rem, 5vw, 3rem);
+
+    font-weight:
+        1000;
+
+    text-shadow:
+        2px 2px 0 #fff;
+
+}
+
+
+.praise.pop {
+
+    animation:
+        praisePop
+        .65s
+        steps(5);
+
+}
+
+
+@keyframes praisePop {
+
+    0% {
+
+        opacity: 0;
+
+        transform:
+            scale(.4);
+
+    }
+
+    40% {
+
+        opacity: 1;
+
+        transform:
+            scale(1.2);
+
+    }
+
+    70% {
+
+        transform:
+            scale(.9);
+
+    }
+
+    100% {
+
+        transform:
+            scale(1);
+
+    }
+
+}
+
+
+/* =========================================================
+   SPARKLES
+========================================================= */
+
+.sparkle {
+
+    color: #ffae00;
+
+    font-size: 2rem;
+
+    margin:
+        0 20px;
+
+}
+
+
+.sparkles {
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+}
+
+
+/* =========================================================
+   COUNTER
+========================================================= */
+
+.counter {
+
+    font-size:
+        clamp(.8rem, 2vw, 1.1rem);
+
+    font-weight: 900;
+
+}
+
+
+/* =========================================================
+   BUTTON
+========================================================= */
+
+.spin-button {
+
+    display:
+        block;
+
+    margin:
+        30px
+        auto
+        0;
+
+    padding:
+        17px
+        40px;
+
+    min-width:
+        260px;
+
+    border:
+        5px solid #481417;
+
+    border-radius:
+        8px;
+
+    background:
+        linear-gradient(
+            #ff4148,
+            #d71920
+        );
+
+    color: white;
+
+    font-family:
+        "Courier New",
+        monospace;
+
+    font-size:
+        1rem;
+
+    font-weight: 1000;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 7px 0 #671014,
+        inset 0 3px 0 rgba(255,255,255,.45);
+
+    transition:
+        transform .1s,
+        box-shadow .1s;
+
+}
+
+
+.spin-button:hover {
+
+    filter:
+        brightness(1.08);
+
+}
+
+
+.spin-button:active {
+
+    transform:
+        translateY(7px);
+
+    box-shadow:
+        0 0 0 #671014,
+        inset 0 3px 0 rgba(255,255,255,.45);
+
+}
+
+
+/* =========================================================
+   HINWEIS
+========================================================= */
+
+.hint {
+
+    margin-top:
+        25px;
+
+    font-size:
+        .85rem;
+
+    font-weight:
+        900;
+
+    color:
+        #766c69;
+
+}
+
+
+/* =========================================================
+   KONFETTI
+========================================================= */
+
+.confetti {
+
+    position:
+        fixed;
+
+    width:
+        9px;
+
+    height:
+        13px;
+
+    z-index:
+        999;
+
+    pointer-events:
+        none;
+
+    image-rendering:
+        pixelated;
+
+    animation:
+        confettiFall
+        1.1s
+        steps(8)
+        forwards;
+
+}
+
+
+@keyframes confettiFall {
+
+    0% {
+
+        opacity:
+            1;
+
+        transform:
+            translate(0,0)
+            rotate(0deg);
+
+    }
+
+    100% {
+
+        opacity:
+            0;
+
+        transform:
+            translate(
+                calc((var(--x) - .5) * 350px),
+                calc(150px + var(--y) * 250px)
+            )
+            rotate(720deg);
+
+    }
+
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media(max-width:600px) {
+
+    .page {
+
+        padding-top:
+            20px;
+
+    }
+
+
+    .title {
+
+        letter-spacing:
+            -3px;
+
+        text-shadow:
+            2px 0 #351919,
+            -2px 0 #351919,
+            0 2px #351919,
+            3px 3px #351919;
+
+    }
+
+
+    .subtitle {
+
+        margin-top:
+            15px;
+
+    }
+
+
+    .result-box {
+
+        padding:
+            25px
+            15px;
+
+    }
+
+
+    .spin-button {
+
+        min-width:
+            230px;
+
+        padding:
+            15px
+            20px;
+
+    }
+
+}
+
+
+/* =========================================================
+   REDUCED MOTION
+========================================================= */
+
+@media(prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+
+        animation-duration:
+            .01ms !important;
+
+        animation-iteration-count:
+            1 !important;
+
+    }
+
+}
+
+</style>
+</head>
+
+
+<body>
+
+
+<div class="page">
+
+
+    <!-- =================================================
+         TITEL
+    ================================================== -->
+
+    <h1 class="title">
+        LOB-AUTOMAT
+    </h1>
+
+
+    <p class="subtitle">
+        Dreh am Automaten und lass dir ein persönliches Lob ausgeben!
+    </p>
+
+
+
+    <!-- =================================================
+         AUTOMAT
+    ================================================== -->
+
+    <div class="machine-area">
+
+
+        <!-- DEIN PIXEL-ART-BILD -->
+
+        <img
+            src="lob-automat.png"
+            class="machine-image"
+            id="machineImage"
+            alt="Pixel-Art Kaugummiautomat"
+        >
+
+
+        <!-- Unsichtbarer Knopf über dem roten Knopf -->
+
+        <button
+            class="machine-button"
+            id="machineButton"
+            aria-label="Kaugummiautomat drehen"
+        ></button>
+
+
+
+        <!-- =================================================
+             KAPSEL
+        ================================================== -->
+
+        <div
+            class="capsule"
+            id="capsule"
+        >
+
+            <div class="capsule-top"></div>
+
+            <div class="capsule-band"></div>
+
+            <div class="capsule-bottom"></div>
+
+        </div>
+
+
+    </div>
+
+
+
+    <!-- =================================================
+         ERGEBNIS
+    ================================================== -->
+
+    <section class="result-box">
+
+
+        <div class="result-label">
+            Dein persönliches Lob
+        </div>
+
+
+        <div class="sparkles">
+
+            <span class="sparkle">✦</span>
+
+            <div
+                class="praise"
+                id="praise"
+                aria-live="polite"
+            >
+                Dreh am Automaten!
+            </div>
+
+            <span class="sparkle">✦</span>
+
+        </div>
+
+
+        <div class="counter">
+
+            Drehungen:
+            <span id="counter">0</span>
+
+        </div>
+
+
+    </section>
+
+
+
+    <!-- =================================================
+         BUTTON
+    ================================================== -->
+
+    <button
+        class="spin-button"
+        id="spinButton"
+    >
+
+        🍬 &nbsp; Kapsel ziehen
+
+    </button>
+
+
+    <div class="hint">
+
+        Du kannst den Automaten beliebig oft benutzen.
+
+    </div>
+
+
+</div>
+
+
+
+<script>
+
+/* =========================================================
+   50 LOBESWORTE
+========================================================= */
+
+const praises = [
+
+    "Großartig!",
+    "Fantastisch!",
+    "Wunderbar!",
+    "Du bist klasse!",
+    "Stark!",
+    "Brillant!",
+    "Beeindruckend!",
+    "Hervorragend!",
+    "Genial!",
+    "Toll gemacht!",
+    "Du rockst!",
+    "Du bist spitze!",
+    "Mega!",
+    "Ausgezeichnet!",
+    "Super!",
+    "Du bist großartig!",
+    "Was für ein Talent!",
+    "Du bist einzigartig!",
+    "Unfassbar gut!",
+    "Du strahlst!",
+    "Du kannst alles schaffen!",
+    "Du bist bemerkenswert!",
+    "Respekt!",
+    "Wow, einfach wow!",
+    "Du bist genial!",
+    "Du bist ein Star!",
+    "Du bist unglaublich!",
+    "Du hast es drauf!",
+    "Starke Leistung!",
+    "Du machst das super!",
+    "Du bist etwas Besonderes!",
+    "Du bist ein Genie!",
+    "Du bist voller Energie!",
+    "Du inspirierst!",
+    "Du bist phänomenal!",
+    "Du bist wunderbar!",
+    "Du bist richtig gut!",
+    "Du bist beeindruckend!",
+    "Du bist wertvoll!",
+    "Du bist fantastisch!",
+    "Du bist voller Potenzial!",
+    "Du machst einen tollen Job!",
+    "Du bist einfach klasse!",
+    "Du bist unglaublich stark!",
+    "Du bist ein echtes Original!",
+    "Heute bist du unschlagbar!",
+    "Du bist großartig unterwegs!",
+    "Du bist voller Talent!",
+    "Du bist einfach wunderbar!"
+
+];
+
+
+/* =========================================================
+   ELEMENTE
+========================================================= */
+
+const machineImage =
+    document.getElementById("machineImage");
+
+const machineButton =
+    document.getElementById("machineButton");
+
+const spinButton =
+    document.getElementById("spinButton");
+
+const capsule =
+    document.getElementById("capsule");
+
+const praise =
+    document.getElementById("praise");
+
+const counter =
+    document.getElementById("counter");
+
+
+let spins = 0;
+
+let busy = false;
+
+
+/* =========================================================
+   ZUFÄLLIGES LOB
+========================================================= */
+
+function getRandomPraise() {
+
+    return praises[
+        Math.floor(
+            Math.random() * praises.length
+        )
+    ];
+
+}
+
+
+/* =========================================================
+   KONFETTI
+========================================================= */
+
+function createConfetti() {
+
+    const colors = [
+        "#e71920",
+        "#1683ed",
+        "#ffc719",
+        "#20ad43",
+        "#ed3e91",
+        "#9c45d7",
+        "#ff8518"
+    ];
+
+
+    for(let i = 0; i < 30; i++) {
+
+        const piece =
+            document.createElement("div");
+
+
+        piece.className =
+            "confetti";
+
+
+        piece.style.left =
+            window.innerWidth / 2 + "px";
+
+
+        piece.style.top =
+            window.innerHeight * .45 + "px";
+
+
+        piece.style.background =
+            colors[
+                Math.floor(
+                    Math.random() * colors.length
+                )
+            ];
+
+
+        piece.style.setProperty(
+            "--x",
+            Math.random()
+        );
+
+
+        piece.style.setProperty(
+            "--y",
+            Math.random()
+        );
+
+
+        document.body.appendChild(piece);
+
+
+        setTimeout(
+            () => piece.remove(),
+            1200
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   AUTOMAT DREHEN
+========================================================= */
+
+function spinMachine() {
+
+    if(busy) {
+        return;
+    }
+
+
+    busy = true;
+
+
+    spins++;
+
+
+    counter.textContent =
+        spins;
+
+
+    /* -------------------------------------
+       Automat wackelt
+    ------------------------------------- */
+
+    machineImage.classList.remove(
+        "turning"
+    );
+
+    void machineImage.offsetWidth;
+
+    machineImage.classList.add(
+        "turning"
+    );
+
+
+    /* -------------------------------------
+       Kapsel zurücksetzen
+    ------------------------------------- */
+
+    capsule.classList.remove(
+        "show"
+    );
+
+    void capsule.offsetWidth;
+
+
+    /* -------------------------------------
+       Kapsel fällt heraus
+    ------------------------------------- */
+
+    setTimeout(() => {
+
+        capsule.classList.add(
+            "show"
+        );
+
+    }, 350);
+
+
+    /* -------------------------------------
+       Neues Lob
+    ------------------------------------- */
+
+    setTimeout(() => {
+
+        praise.classList.remove(
+            "pop"
+        );
+
+        void praise.offsetWidth;
+
+
+        praise.textContent =
+            getRandomPraise();
+
+
+        praise.classList.add(
+            "pop"
+        );
+
+
+        createConfetti();
+
+
+    }, 1100);
+
+
+    /* -------------------------------------
+       Wieder freigeben
+    ------------------------------------- */
+
+    setTimeout(() => {
+
+        busy = false;
+
+    }, 1500);
+
+}
+
+
+/* =========================================================
+   BUTTONS
+========================================================= */
+
+machineButton.addEventListener(
+    "click",
+    spinMachine
+);
+
+
+spinButton.addEventListener(
+    "click",
+    spinMachine
+);
+
+
+/* =========================================================
+   TASTATUR
+========================================================= */
+
+document.addEventListener(
+    "keydown",
+    event => {
+
+        if(
+            event.code === "Space" ||
+            event.code === "Enter"
+        ) {
+
+            if(
+                document.activeElement.tagName !== "BUTTON"
+            ) {
+
+                event.preventDefault();
+
+                spinMachine();
+
+            }
+
+        }
+
+    }
+);
+
+</script>
+
+</body>
+  </html>
